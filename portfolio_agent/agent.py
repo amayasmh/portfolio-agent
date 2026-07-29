@@ -14,5 +14,5 @@ def make_agent(model_name: str) -> Agent :
     )
 
 
-#on conserve pour le dev
-root_agent = make_agent(os.environ.get("MODEL_NAME", 'gemini-3.5-flash-lite'))
+#Local test if needed
+#root_agent = make_agent(os.environ.get("MODEL_NAME", 'gemini-3.5-flash-lite'))

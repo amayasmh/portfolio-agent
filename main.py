@@ -32,7 +32,7 @@ app = FastAPI(title="portfolio-agent API")
 ALLOWED_ORIGINS = [
     "https://amayas.dev",
     "https://www.amayas.dev",
-    "http://localhost:8080",   # tests locaux du widget — à retirer en prod
+
 ]
 app.add_middleware(
     CORSMiddleware,
@@ -41,8 +41,8 @@ app.add_middleware(
     allow_headers=["content-type"],
 )
 
-# ---------- Rate limiting par IP ----------
-RATE_LIMIT, WINDOW_S = 10, 60          # 3 pour le test — remettre 10 après
+# ---------- Rate limiting per IP ----------
+RATE_LIMIT, WINDOW_S = 10, 60          
 _hits: dict[str, deque] = defaultdict(deque)
 
 def check_rate_limit(ip: str):
@@ -53,7 +53,7 @@ def check_rate_limit(ip: str):
         raise HTTPException(429, "Rate limit exceeded. Try again in a minute.")
     q.append(now)
 
-# ---------- Schéma d'entrée ----------
+# ---------- Inputs ----------
 class ChatIn(BaseModel):
     message: str = Field(min_length=1, max_length=500)
     session_id: str = Field(min_length=8, max_length=64, pattern=r"^[a-zA-Z0-9_-]+$")
@@ -66,7 +66,7 @@ async def health():
 @app.post("/chat")
 async def chat(body: ChatIn, request: Request):
     ip = (request.headers.get("x-forwarded-for") or request.client.host).split(",")[0].strip()
-    check_rate_limit(ip)                                   # ← le compteur, TOUJOURS appelé
+    check_rate_limit(ip)                                   
 
     sid = body.session_id
     session = await session_service.get_session(app_name=APP_NAME, user_id=sid, session_id=sid)
@@ -89,5 +89,9 @@ async def chat(body: ChatIn, request: Request):
                 last_error = msg
                 continue
             raise HTTPException(500, "Agent error")
-
+            
+            
+        
+    if last_error:
+        print("All models exhausted. Last error : {last_error[:300]}")
     raise HTTPException(503, "All models exhausted — please try again later.")
