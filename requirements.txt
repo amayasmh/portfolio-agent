@@ -1,4 +1,6 @@
 fastapi==0.139.2
 google-adk==2.5.0
+google-cloud-bigquery==3.42.3
+python-dotenv==1.2.2
 requests==2.34.2
 uvicorn==0.51.0
